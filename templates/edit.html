@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Job - {{ job['title'] }}{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center mt-4">
+    <div class="card shadow-sm p-4" style="max-width: 800px; width: 100%;">
+        
+        <div class="text-center">
+            <h1 class="fw-bold" style="color: #274c77;">Edit Job Listing</h1>
+            <p class="fs-5" style="color: #495057;">Modify the job details below and save your changes.</p>
+        </div>
+
+        <hr style="border-top: 2px solid #d3d9df; width: 100%;">
+
+        <div id="successMessage" class="alert alert-success text-center d-none">
+            <strong>Changes saved successfully!</strong>
+            <a id="viewJobLink" href="/view/{{ job['id'] }}" class="fw-bold">See it here</a>
+        </div>
+
+        <form id="editJobForm">
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Job Title</label>
+                <input type="text" class="form-control" id="title" value="{{ job['title'] }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Company</label>
+                <input type="text" class="form-control" id="company" value="{{ job['company'] }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Location</label>
+                <input type="text" class="form-control" id="location" value="{{ job['location'] }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Salary</label>
+                <input type="text" class="form-control" id="salary" value="{{ job['salary'] }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Job Score</label>
+                <input type="text" class="form-control" id="job_score" value="{{ job['job_score'] }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Job Requirements</label>
+                <textarea class="form-control" id="job_requirements" rows="4">{{ job['job_requirements'] | join("\n") }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">About Us</label>
+                <textarea class="form-control" id="about_us" rows="4">{{ job['about_us'] }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Company Video Link (YouTube)</label>
+                <input type="text" class="form-control" id="company_video" value="{{ job['company_video'] }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Company Logo URL</label>
+                <input type="text" class="form-control" id="company_logo" value="{{ job['company_logo'] }}">
+            </div>
+
+            <div id="errorMessage" class="text-danger text-center mt-2"></div>
+        </form>
+    </div>
+</div>
+
+<div class="container text-center mt-4 mb-4 d-flex justify-content-center align-items-center gap-3 w-auto">
+    <button class="btn btn-secondary btn-lg" style="background-color: #d9534f; border-color: #d9534f;"
+            data-bs-toggle="modal" data-bs-target="#discardModal">
+        Discard Changes
+    </button>
+
+    <button type="submit" class="btn btn-primary btn-lg" onclick="editJob({{ job['id'] }})">
+    Save Changes
+    </button>
+
+
+
+<div class="modal fade" id="discardModal" tabindex="-1" aria-labelledby="discardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="discardModalLabel">Discard Changes?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to discard your changes? This action <strong>cannot</strong> be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="discardChanges({{ job['id'] }})">Yes, Discard</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-bottom-spacing"></div>
+<script>
+
+function editJob(jobId) {
+        let jobData = validateForm();
+        if (!jobData) return; // Stop execution if validation fails
+
+        fetch(`/edit/${jobId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jobData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = `/view/${jobId}`; // Redirect to view page after editing
+            } else {
+                alert(data.error || "An unexpected error occurred.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function discardChanges(jobId) {
+        if (confirm("Are you sure you want to discard changes?")) {
+            window.location.href = "/view/" + jobId;
+        }
+    }
+
+</script>
+{% endblock %}

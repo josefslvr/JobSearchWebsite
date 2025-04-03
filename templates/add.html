@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Add a New Job{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center mt-4">
+    <div class="card shadow-sm p-4" style="max-width: 800px; width: 100%;">
+        
+        <div class="text-center">
+            <h1 class="fw-bold" style="color: #274c77;">Add a New Job</h1>
+            <p class="fs-5" style="color: #495057;">Fill in the details below to create a new job listing.</p>
+        </div>
+
+        <hr style="border-top: 2px solid #d3d9df; width: 100%;">
+
+        <div id="successMessage" class="alert alert-success text-center d-none">
+            <strong>New item successfully created!</strong> 
+            <a id="viewJobLink" href="#" class="fw-bold">See it here</a>
+        </div>
+
+        <form id="addJobForm">
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Job Title</label>
+                <input type="text" class="form-control" id="title" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Company</label>
+                <input type="text" class="form-control" id="company" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Location</label>
+                <input type="text" class="form-control" id="location" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Salary</label>
+                <input type="text" class="form-control" id="salary">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Job Score</label>
+                <input type="number" step="0.1" class="form-control" id="job_score">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Job Requirements</label>
+                <textarea class="form-control" id="job_requirements" rows="4"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">About Us</label>
+                <textarea class="form-control" id="about_us" rows="4"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Company Video Link (YouTube)</label>
+                <input type="text" class="form-control" id="company_video">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #274c77;">Company Logo URL</label>
+                <input type="text" class="form-control" id="company_logo">
+            </div>
+
+            <div id="errorMessage" class="text-danger text-center mt-2"></div>
+        </form>
+    </div>
+</div>
+
+<div class="container text-center mt-4 mb-4 d-flex justify-content-center align-items-center gap-3 w-auto">
+    <button class="btn btn-secondary btn-lg" style="background-color: #d9534f; border-color: #d9534f;"
+            onclick="discardJob()">
+        Discard Job
+    </button>
+
+    <button type="submit" class="btn btn-primary btn-lg" onclick="addJob()">
+        Add Job
+    </button>
+
+</div>
+
+<script>
+    function addJob() {
+        let jobData = validateForm();
+        if (!jobData) return; // Stop execution if validation fails
+
+        fetch("/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(jobData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message and link to new job
+                document.getElementById("successMessage").classList.remove("d-none");
+                document.getElementById("successMessage").scrollIntoView({ behavior: "smooth" });
+
+                let viewJobLink = document.getElementById("viewJobLink");
+                viewJobLink.href = `/view/${data.job_id}`;
+                viewJobLink.onclick = function () {
+                    window.location.href = `/view/${data.job_id}`;
+                };
+
+                document.getElementById("addJobForm").reset();
+                document.getElementById("title").focus();
+            } else {
+                alert("An unexpected error occurred.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    function discardJob() {
+        let confirmExit = confirm("Are you sure you want to discard this job?");
+        if (confirmExit) {
+            window.location.href = "/";
+        }
+    }
+</script>
+
+<div class="page-bottom-spacing"></div>
+{% endblock %}

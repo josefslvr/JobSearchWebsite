@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job['title'] }} - Job Details{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center mt-4">
+    <div class="card shadow-sm p-4" style="max-width: 800px; width: 100%;">
+        
+        <div class="text-center mb-3">      <!-- Company Logo -->
+            {% if job['company_logo'] %}
+                <div class="image-container" style="height: 140px; display: flex; align-items: center; justify-content: center; background: white;">
+                    <img src="{{ job['company_logo'] }}" alt="{{ job['company'] if job['company'] else 'Company logo' }} logo"
+                         class="img-fluid" style="max-height: 100%; max-width: 75%; object-fit: contain;">
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="text-center">            <!-- Stars -->
+            <h1 class="fw-bold" style="color: #274c77;">{{ job['title'] }}</h1>
+            <h2 class="fw-bold" style="color: #495057;">{{ job['salary'] }}</h2>
+
+            <div class="mb-3">
+                {% set rating = job['job_score'] | float %}
+                {% set full_stars = rating | int %}
+                {% set has_half_star = (rating - full_stars) >= 0.5 %}
+
+                {% for i in range(5) %}
+                    {% if i < full_stars %}
+                        <i class="fas fa-star" style="color: #A3CEF1; font-size: 24px;"></i>
+                    {% elif i == full_stars and has_half_star %}
+                        <i class="fas fa-star-half-alt" style="color: #A3CEF1; font-size: 24px;"></i>
+                    {% else %}
+                        <i class="far fa-star" style="color: lightgray; font-size: 24px;"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr style="border-top: 2px solid #d3d9df; width: 100%;" >
+
+        <div class="text-center">           <!-- Location -->
+            <h3 class="fw-bold" style="color: #495057;">{{ job['company'] }}</h3>
+            <p class="fs-5" style="color: #495057;">
+                <i class="fas fa-map-marker-alt"></i> <strong>{{ job['location'] }}</strong>
+            </p>
+        </div>
+
+        <div>                               <!-- Job Requirements -->
+            <h3 class="fw-bold text-center" style="color: #274c77;">Job Requirements:</h3>
+            {% if job['job_requirements'] %}
+                <ul class="fs-5" style="color: #495057; text-align: left; max-width: 700px; margin: 0 auto;">
+                    {% for requirement in job['job_requirements'] %}
+                        <li>{{ requirement }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-center" style="color: #495057;">No job requirements listed.</p>
+            {% endif %}
+        </div>
+
+        <hr style="border-top: 2px solid #d3d9df; width: 100%;">  
+
+        <div class="mt-4">                  <!-- About Us -->
+            <h3 class="fw-bold text-center" style="color: #274c77;">About Us:</h3>
+            {% if job['about_us'] %}
+                <p class="fs-5 text-center" style="color: #495057;">{{ job['about_us'] }}</p>
+            {% else %}
+                <p class="text-center" style="color: #495057;">No information available.</p>
+            {% endif %}
+        </div>
+
+        <div class="video-container text-center mt-3">  <!-- Video -->
+            {% if "youtube.com" in job['company_video'] %}
+                {% set youtube_id = job['company_video'].split("v=")[1].split("&")[0] %}
+                <iframe width="560" height="315"
+                        src="https://www.youtube.com/embed/{{ youtube_id }}"
+                        frameborder="0" allowfullscreen>
+                </iframe>
+            {% else %}
+                <p class="text-muted">No video available.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<div class="container text-center mt-4">    <!-- Edit Button -->
+    <a href="/edit/{{ job['id'] }}" class="btn btn-secondary btn-lg"
+       style="background-color: #A3CEF1; border-color: #A3CEF1;">
+        Edit Job
+    </a>
+</div>
+
+<div class="page-bottom-spacing"></div>
+{% endblock %}
